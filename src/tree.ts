@@ -4,19 +4,16 @@ import { Branch } from "./branch";
 const BRANCH_RADIUS = 0.02;
 
 export class Tree {
-  private _branchGeometry: THREE.BufferGeometry;
-
-  static maxDepth = 0;
-  static division = 0;
+  static BranchGeometry: THREE.BufferGeometry;
+  static MaxDepth = 3;
+  static Division = 3;
 
   constructor(private _scene: THREE.Scene) {
-    this._branchGeometry = new THREE.CylinderGeometry(BRANCH_RADIUS, BRANCH_RADIUS);
-    this._branchGeometry.translate(0, 0.5, 0);
-    Tree.maxDepth = 3;
-    Tree.division = 3;
+    Tree.BranchGeometry = new THREE.CylinderGeometry(BRANCH_RADIUS, BRANCH_RADIUS);
+    Tree.BranchGeometry.translate(0, 0.5, 0);
   }
 
   create() {
-    new Branch(this._branchGeometry, this._scene, 0, undefined);
+    new Branch(this._scene, 0, new THREE.Vector3(), new THREE.Quaternion());
   }
 }
