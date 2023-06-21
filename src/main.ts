@@ -35,6 +35,7 @@ window.addEventListener("click", onDocumentMouseDown, false);
 // Rendering
 animate();
 function animate() {
+  scene.update();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }

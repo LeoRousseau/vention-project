@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { Tree } from "./tree";
 
 export class MainScene extends THREE.Scene {
+
+  private _tree: Tree;
   public initialize() {
     this._createTree();
     this._createLight();
@@ -14,6 +16,10 @@ export class MainScene extends THREE.Scene {
   }
 
   private _createTree() {
-    new Tree(this).create();
+    this._tree = new Tree(this);
+  }
+
+  update() {
+    if (this._tree) this._tree.rotate();
   }
 }

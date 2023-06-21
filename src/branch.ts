@@ -8,7 +8,9 @@ const getRandom = (max: number): number => Math.random() * max * 2 - max;
 export class Branch {
   private readonly _mesh: THREE.Mesh;
 
-  constructor(scene: THREE.Scene, depth: number, position: THREE.Vector3, defaultQuaternion: THREE.Quaternion) {
+  private _childBranch: Branch[] = [];
+
+  constructor(scene: THREE.Scene, depth: number, position: THREE.Vector3, defaultQuaternion: THREE.Quaternion, parent?: THREE.Mesh) {
     const material = new THREE.MeshPhongMaterial({
       color: Math.random() * 0xffffff,
     });
@@ -18,12 +20,14 @@ export class Branch {
     if (depth > 0) this._setBranchTransform(defaultQuaternion, position);
 
     if (depth < Tree.MaxDepth) {
-      for (let i = 0; i < Tree.Division; i++) new Branch(scene, depth + 1, this._getMergingPoint(), this._mesh.quaternion.clone());
+      for (let i = 0; i < Tree.Division; i++) this._childBranch.push(new Branch(scene, depth + 1, this._getMergingPoint(), this._mesh.quaternion.clone(), this._mesh));
 
       this._mesh["onClick"] = (point: THREE.Vector3) => {
-        new Branch(scene, depth + 1, point, this._mesh.quaternion.clone());
+        this._childBranch.push(new Branch(scene, depth + 1, point, this._mesh.quaternion.clone(), this._mesh));
       };
     }
+
+    if (parent) parent.attach(this._mesh);
   }
 
   private _setBranchTransform(defaultQuaternion: THREE.Quaternion, position: THREE.Vector3) {
@@ -46,5 +50,10 @@ export class Branch {
 
   private _getMergingPoint(): THREE.Vector3 {
     return this._mesh.localToWorld(new THREE.Vector3(0, Math.random() / 2 + 0.5, 0));
+  }
+
+  rotate() {
+    this._mesh.rotation.y -=0.001;
+    this._childBranch.forEach((b) => b.rotate());
   }
 }
