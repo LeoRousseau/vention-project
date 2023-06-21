@@ -1,35 +1,70 @@
-import * as THREE from 'three'
-import { Tree } from './tree';
+import * as THREE from "three";
+import { Tree } from "./tree";
 
-const MAX_ANGLE  = Math.PI/3.0;
+const BRANCH_ANGLE = Math.PI / 3.0;
 
 export class Branch {
+  private _mesh: THREE.Mesh;
 
-    readonly mesh: THREE.Mesh;
-    readonly angle: number;
+  constructor(scene: THREE.Scene, depth: number, position: THREE.Vector3, parent?: THREE.Mesh) {
+    this._createMesh(scene);
 
-    constructor(geometry : THREE.BufferGeometry, scene: THREE.Scene, depth: number, parent?: Branch) {
+    const q = new THREE.Quaternion();
+    const quaternion = parent ? parent.getWorldQuaternion(q).clone() : new THREE.Quaternion();
+    if (depth > 0) this._setBranchTransform(quaternion, position);
 
-        const material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
-        this.mesh = new THREE.Mesh(geometry, material);
+    if (depth < Tree.MaxDepth) this._createChildren(scene, depth);
+    parent?.attach(this._mesh);
+  }
 
-        scene.add(this.mesh);
-        this.angle = Math.random() * MAX_ANGLE * 2 - MAX_ANGLE; // TO FIX
+  /**
+   * Creates Branch Mesh
+   * @param scene - scene in which to add the mesh
+   */
+  private _createMesh(scene: THREE.Scene) {
+    const material = new THREE.MeshPhongMaterial({
+      color: Math.random() * 0xffffff,
+    });
+    this._mesh = new THREE.Mesh(Tree.BranchGeometry, material);
+    scene.add(this._mesh);
+  }
 
-        if (parent) {
-            this.mesh.rotateZ((this.angle + parent.angle) % (Math.PI * 2));
-            this.mesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), Math.random()* Math.PI * 2)
-            this.mesh.position.copy(parent.getEndingPoint());
-            this.mesh.translateY(0.5);
-        }
+  /**
+   * Creates all Branch children
+   * @param scene - scene in which to add the mesh
+   * @param depth - current depth value
+   */
+  private _createChildren(scene: THREE.Scene, depth: number) {
+    for (let i = 0; i < Tree.Division; i++) new Branch(scene, depth + 1, this._getMergingPoint(), this._mesh);
 
-        if (depth < Tree.maxDepth) {
-            for (let i=0; i<Tree.division; i++) new Branch(geometry, scene, depth + 1, this);
-        }
+    this._mesh["onClick"] = (point: THREE.Vector3) => {
+      new Branch(scene, depth + 1, point, this._mesh);
+    };
+  }
 
-    }
+  /**
+   * Sets Branch transform (rotation and position)
+   * @param defaultQuaternion - base quaternion (world quaternion of parent branch)
+   * @param position - starting position of the branh
+   */
+  private _setBranchTransform(defaultQuaternion: THREE.Quaternion, position: THREE.Vector3) {
+    this._mesh.quaternion.copy(defaultQuaternion.clone());
+    this._mesh.position.copy(position);
 
-    getEndingPoint(): THREE.Vector3 {
-        return this.mesh.localToWorld(new THREE.Vector3(0, 0.5,0));
-    }
+    const parentDirection = new THREE.Vector3(0, 1, 0).applyQuaternion(defaultQuaternion.clone());
+    this._mesh.rotateX(BRANCH_ANGLE);
+    this._mesh.rotateOnWorldAxis(parentDirection, Math.random() * Math.PI * 2);
+  }
+
+  /**
+   * Obtains a random position on the current branch where a child branch can be placed
+   * @returns
+   */
+  private _getMergingPoint(): THREE.Vector3 {
+    return this._mesh.localToWorld(new THREE.Vector3(0, Math.random() / 2 + 0.5, 0));
+  }
+
+  rotate() {
+    this._mesh.traverse((m) => m.rotateY(0.001));
+  }
 }
