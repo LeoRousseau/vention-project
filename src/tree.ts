@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Branch } from "./branch";
 
-const BRANCH_RADIUS = 0.01;
+const BRANCH_RADIUS = 0.02;
 
 export class Tree {
   private _branchGeometry: THREE.BufferGeometry;

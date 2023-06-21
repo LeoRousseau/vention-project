@@ -15,33 +15,35 @@ export class Branch {
     this.mesh = new THREE.Mesh(geometry, material);
     scene.add(this.mesh);
 
-    if (parent) {
-      this.mesh.rotation.copy(parent.mesh.rotation.clone());
-      const parentVector = parent.getEndingPoint().sub(parent.getStartingPoint());
-      const rotationAxis = this.getRandomOrthogonalAxis(parentVector);
-      this.mesh.position.copy(parent.getEndingPoint());
-
-      const angle = getRandom(MAX_ANGLE);
-      this.mesh.rotateOnWorldAxis(rotationAxis, angle);
-    }
+    if (parent) this._setBranchTransform(parent);
 
     if (depth < Tree.maxDepth) {
       for (let i = 0; i < Tree.division; i++) new Branch(geometry, scene, depth + 1, this);
     }
   }
 
-  getEndingPoint(): THREE.Vector3 {
-    return this.mesh.localToWorld(new THREE.Vector3(0, 1, 0));
+  private _setBranchTransform(parent: Branch) {
+    this.mesh.rotation.copy(parent.mesh.rotation.clone());
+    const parentVector = parent.getEndingPoint().sub(parent.getStartingPoint());
+    const rotationAxis = this._getRandomOrthogonalAxis(parentVector);
+    this.mesh.position.copy(parent.getEndingPoint());
+
+    const angle = getRandom(MAX_ANGLE);
+    this.mesh.rotateOnWorldAxis(rotationAxis, angle);
   }
 
-  getStartingPoint(): THREE.Vector3 {
-    return this.mesh.localToWorld(new THREE.Vector3(0, 0, 0));
-  }
-
-  getRandomOrthogonalAxis(currentAxis: THREE.Vector3): THREE.Vector3 {
+  private _getRandomOrthogonalAxis(currentAxis: THREE.Vector3): THREE.Vector3 {
     const randomAxis = new THREE.Vector3(getRandom(1), getRandom(1), getRandom(1));
     const result = new THREE.Vector3();
     result.crossVectors(randomAxis.normalize(), currentAxis.normalize());
     return result;
+  }
+
+  getEndingPoint(): THREE.Vector3 {
+    return this.mesh.localToWorld(new THREE.Vector3(0, Math.random() / 2  + 0.5, 0));
+  }
+
+  getStartingPoint(): THREE.Vector3 {
+    return this.mesh.localToWorld(new THREE.Vector3(0, 0, 0));
   }
 }
