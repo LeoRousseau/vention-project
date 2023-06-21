@@ -6,11 +6,16 @@ const BRANCH_RADIUS = 0.03;
 export class Tree {
     private _branchGeometry : THREE.BufferGeometry;
 
+    static maxDepth = 0;
+    static division = 0;
+
     constructor(private _scene: THREE.Scene) {
         this._branchGeometry = new THREE.CylinderGeometry(BRANCH_RADIUS, BRANCH_RADIUS);
+        Tree.maxDepth = 3;
+        Tree.division = 3;
     }
 
     create() {
-        new Branch(this._branchGeometry, this._scene, undefined, 3, 3);
+        new Branch(this._branchGeometry, this._scene, 0, undefined);
     }
 }
