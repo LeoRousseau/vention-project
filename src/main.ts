@@ -5,7 +5,6 @@ import { MainCamera } from "./camera";
 // Initialize renderer
 const width = window.innerWidth;
 const height = window.innerHeight;
-
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("app") as HTMLCanvasElement });
 renderer.setSize(width, height);
 renderer.setClearColor(0xeef1d4, 1);

@@ -20,6 +20,6 @@ export class MainScene extends THREE.Scene {
   }
 
   update() {
-    if (this._tree) this._tree.rotate();
+    this._tree?.rotate();
   }
 }
