@@ -21,7 +21,7 @@ export class Tree {
   }
 
   /**
-   * Init MaxDepth, Division, isAnimated with URL Params
+   * Initializes MaxDepth, Division, isAnimated with URL Params
    */
   private _initURLParams() {
     const params = new URLSearchParams(window.location.search);
